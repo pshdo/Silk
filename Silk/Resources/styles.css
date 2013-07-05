@@ -1,0 +1,77 @@
+* 
+{
+	font-family: Calibri, Helvetica, sans-serif;
+}
+
+body
+{
+	width: 800px;
+	margin-left:auto;
+	margin-right:auto;
+	background-color: cornflowerblue;
+	background-color: lavender;
+	background-color: lightblue;
+	background-color: lightsteelblue;
+}
+
+h1, h2, h3, h4, h5, h6
+{
+	font-family: Cambria, Georgia, serif;
+	clear:both;
+}
+	
+kbd
+{
+	font-family: Consolas, Monaco, monospace;
+	font-size: 11pt;
+}
+
+code
+{
+	font-family: Consolas, Monaco, monospace;
+	font-size: 11pt;
+}
+
+pre
+{
+	background-color: lightgrey;
+	background-color: navy;
+	color: white;
+	border: 1px solid black;
+	margin:0;
+	padding: 1em;
+	white-space: pre-line;
+}
+
+p, td, div
+{
+	font-size: 12pt;
+}
+
+div.Footer
+{
+	font-size: 10pt;
+	margin-top:3em;
+	border-top: 1px solid black;
+	padding-top: 1em;
+	padding-bottom: 3em;
+}
+
+ul#SiteNav
+{
+	font-size: 10pt;
+	margin:0;
+	margin-bottom: 0pt;
+	padding:0;
+	height: 14pt;
+}
+
+ul#SiteNav li
+{
+	list-style-type: none;
+	float:left;
+	display:block;
+	margin:0;
+	margin-right: .5em;
+	padding:0;
+}
