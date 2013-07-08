@@ -109,6 +109,6 @@ if( -not (Test-Path $DestinationPath -PathType Container) )
 Join-Path $PSScriptRoot 'Resources\styles.css' | Get-Item | Copy-Item -Destination $DestinationPath
 
 $commands | 
-    #Where-Object { $_.Name -eq 'Get-Certificate' } | 
+    #Where-Object { $_.Name -eq 'Invoke-SqlScript' } | 
     Get-Help -Full | 
     Convert-HelpToHtml -Menu $menuBuilder.ToString() -Config $config -DestinationPath $DestinationPath
