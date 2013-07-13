@@ -69,22 +69,45 @@ if( -not (Get-Module $moduleName) )
     exit 1
 }
 
+# Normalize topics
+$config.Topics |
+    ForEach-Object {
+        if( -not ([IO.Path]::IsPathRooted($_.Path)) )
+        {
+            $_.Path = Join-Path $ConfigFileRoot $_.Path
+        }
+
+        $baseName = [IO.Path]::GetFileNameWithoutExtension( $_.Path )
+
+        if( -not ($_ | Get-Member FileName) )
+        {
+            $_ | Add-Member NoteProperty -Name FileName -Value ('{0}.html' -f $baseName)
+        }
+
+        if( -not ($_ | Get-Member Title) )
+        {
+            $_ | Add-Member NoteProperty -Name Title -Value $baseName
+        }
+    }
+
+
 $commands = Get-Command -Module $moduleName | 
                 Where-Object { $_.ModuleName -eq $moduleName -and $_.Name } | 
                 Sort-Object Name 
 
 $menuBuilder = New-Object Text.StringBuilder
-[void] $menuBuilder.AppendFormat( @"
-	<ul id="SiteNav">
-		<li>{0}</li>
-	</ul>"@, $moduleName )
 [void] $menuBuilder.AppendLine( '<div id="CommandMenuContainer" style="float:left;">' )
 [void] $menuBuilder.AppendFormat( "`t<ul class=""CommandMenu"">`n" )
+$config.Topics |
+    ForEach-Object {
+        [void] $menuBuilder.AppendFormat( "`t`t<li><a href=""{0}"">{1}</a></li>", $_.FileName, $_.Title )
+    }
 $commands | 
     Where-Object { $config.CommandsToSkip -notcontains $_ } |
     ForEach-Object {
         [void] $menuBuilder.AppendFormat( "`t`t<li><a href=""{0}.html"">{0}</a></li>", $_.Name )
     }
+
 [void] $menuBuilder.AppendLine( "`t</ul>" )
 [void] $menuBuilder.AppendLine( '</div>' )
 
@@ -93,22 +116,14 @@ if( -not (Test-Path $DestinationPath -PathType Container) )
     New-Item $DestinationPath -ItemType Directory -Force 
 }
 
-@"
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-    <title>{0}</title>
-	<link href="styles.css" type="text/css" rel="stylesheet" />
-</head>
-<body>
-    {1}
-</body>
-</html>
-"@ -f $config.Title,$menuBuilder.ToString() | Out-File -FilePath (Join-Path $DestinationPath index.html) -Encoding OEM
+$config.Topics | 
+    Split-MarkdownTopic -ConfigFileRoot $ConfigFileRoot |
+    Convert-HelpToHtml -Menu $menuBuilder.ToString() -Config $config -DestinationPath $DestinationPath
 
 Join-Path $PSScriptRoot 'Resources\styles.css' | Get-Item | Copy-Item -Destination $DestinationPath
 
 $commands | 
     #Where-Object { $_.Name -eq 'Invoke-SqlScript' } | 
+    Where-Object { $config.CommandsToSkip -notcontains $_.Name } |
     Get-Help -Full | 
     Convert-HelpToHtml -Menu $menuBuilder.ToString() -Config $config -DestinationPath $DestinationPath

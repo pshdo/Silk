@@ -67,7 +67,7 @@ filter Convert-HelpToHtml
         $relatedCommands = @( $relatedCommands )
         if( $relatedCommands.Length -gt 0 )
         {
-            $relatedCommands = " * {0}" -f ($relatedCommands -join "`n * ")
+            $relatedCommands = " * {0}" -f (($relatedCommands -replace '_','\_') -join "`n * ")
         }
         $relatedCommands = @"
         <h2>Related Commands</h2>
@@ -106,7 +106,7 @@ filter Convert-HelpToHtml
             $typeLink = $typeDisplayName
             if( -not $typeFullName )
             {
-                Write-Warning ("Type {0} not found." -f $_.type.name)
+                Write-Warning ("Command {0}: Type {1} not found." -f $_.Name,$_.type.name)
             }
             else
             {
@@ -178,13 +178,13 @@ filter Convert-HelpToHtml
             $type = [Type]$matches[1]
             if( -not $type )
             {
-                Write-Warning ("Type {0} not found." -f $matches[1])
+                Write-Warning ("Command {0}: Type {1} not found." -f $_.Name,$matches[1])
             }
             $returnValues = '[{0}](http://msdn.microsoft.com/en-us/library/{1}.aspx). {2}' -f $type.FullName,$type.FullName.ToLower(),$matches[2]
         }
         else
         {
-            Write-Warning "Unable to find type name in $returnValues.  Return value full type name should end with a period."
+            Write-Warning ("Command {0}: Unable to find type name in {1}.  Return value full type name should end with a period." -f $_.Name,$returnValues)
         }
         $returnValues = $returnValues | Convert-MarkdownToHtml
         $returnValues = @"
@@ -212,11 +212,17 @@ filter Convert-HelpToHtml
 "@ -f $_.title.Trim(('-',' ')),($_.code | Out-HtmlString),(($_.remarks | Out-HtmlString | Convert-MarkdownToHtml) -join '</p><p>')
         }
     
+    $filename = '{0}.html' -f $CommandHelp.Name
+    if( $CommandHelp | Get-Member FileName )
+    {
+        $filename = $CommandHelp.FileName
+    }
+
 @"
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-    <title>$name $($config.Title)</title>
+    <title>$name $($config.TitleSeparator) $($config.Title)</title>
 	<link href="styles.css" type="text/css" rel="stylesheet" />
 </head>
 <body>
@@ -242,6 +248,6 @@ filter Convert-HelpToHtml
     $examples
 </body>
 </html>   
-"@ | Out-File -FilePath (Join-Path $DestinationPath ("{0}.html" -f $CommandHelp.Name)) -Encoding OEM
+"@ | Set-Content -Path (Join-Path $DestinationPath $filename)
 }
 
