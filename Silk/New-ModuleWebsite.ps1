@@ -113,7 +113,7 @@ $commands |
 
 if( -not (Test-Path $DestinationPath -PathType Container) )
 {
-    New-Item $DestinationPath -ItemType Directory -Force 
+    $null = New-Item $DestinationPath -ItemType Directory -Force 
 }
 
 Join-Path $PSScriptRoot 'Resources\styles.css' | Get-Item | Copy-Item -Destination $DestinationPath
