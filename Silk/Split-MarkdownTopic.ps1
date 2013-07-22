@@ -56,7 +56,7 @@ function Split-MarkdownTopic
                 if( $sectionName -or $_ -eq $eof )
                 {
                     $topic.$sectionName = $content -join "`n"
-                    $topic.$sectionName.Trim()
+                    $topic.$sectionName = $topic.$sectionName.Trim()
                     if( $_ -eq $eof )
                     {
                         return

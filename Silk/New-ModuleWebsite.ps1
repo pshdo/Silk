@@ -116,11 +116,11 @@ if( -not (Test-Path $DestinationPath -PathType Container) )
     New-Item $DestinationPath -ItemType Directory -Force 
 }
 
+Join-Path $PSScriptRoot 'Resources\styles.css' | Get-Item | Copy-Item -Destination $DestinationPath
+
 $config.Topics | 
     Split-MarkdownTopic -ConfigFileRoot $ConfigFileRoot |
     Convert-HelpToHtml -Menu $menuBuilder.ToString() -Config $config -DestinationPath $DestinationPath
-
-Join-Path $PSScriptRoot 'Resources\styles.css' | Get-Item | Copy-Item -Destination $DestinationPath
 
 $commands | 
     #Where-Object { $_.Name -eq 'Invoke-SqlScript' } | 
