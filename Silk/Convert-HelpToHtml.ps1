@@ -212,7 +212,9 @@ filter Convert-HelpToHtml
 "@ -f $_.title.Trim(('-',' ')),($_.code | Out-HtmlString),(($_.remarks | Out-HtmlString | Convert-MarkdownToHtml) -join '</p><p>')
         }
     
-    $filename = '{0}.html' -f $CommandHelp.Name
+    $filename = $CommandHelp.Name
+    $fileName = Split-Path -Leaf -Path $filename # handle help for scripts
+    $filename = '{0}.html' -f $filename
     if( $CommandHelp | Get-Member FileName )
     {
         $filename = $CommandHelp.FileName

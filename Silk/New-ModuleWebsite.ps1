@@ -90,25 +90,38 @@ $config.Topics |
         }
     }
 
-
 $commands = Get-Command -Module $moduleName | 
                 Where-Object { $_.ModuleName -eq $moduleName -and $_.Name } | 
                 Sort-Object Name 
 
 $menuBuilder = New-Object Text.StringBuilder
 [void] $menuBuilder.AppendLine( '<div id="CommandMenuContainer" style="float:left;">' )
+[void] $menuBuilder.AppendLine( '<h1>Topics</h1>' )
 [void] $menuBuilder.AppendFormat( "`t<ul class=""CommandMenu"">`n" )
 $config.Topics |
     ForEach-Object {
         [void] $menuBuilder.AppendFormat( "`t`t<li><a href=""{0}"">{1}</a></li>", $_.FileName, $_.Title )
     }
+[void] $menuBuilder.AppendLine( "`t</ul>" )
+
+[void] $menuBuilder.AppendLine( '<h1>Commands</h1>' )
+[void] $menuBuilder.AppendFormat( "`t<ul class=""CommandMenu"">`n" )
 $commands | 
     Where-Object { $config.CommandsToSkip -notcontains $_ } |
     ForEach-Object {
         [void] $menuBuilder.AppendFormat( "`t`t<li><a href=""{0}.html"">{0}</a></li>", $_.Name )
     }
-
 [void] $menuBuilder.AppendLine( "`t</ul>" )
+
+[void] $menuBuilder.AppendLine( '<h1>Scripts</h1>' )
+[void] $menuBuilder.AppendFormat( "`t<ul class=""CommandMenu"">`n" )
+$config.Scripts |
+    ForEach-Object {
+        $name = Split-Path -Leaf $_
+        [void] $menuBuilder.AppendFormat( "`t`t<li><a href=""{0}.html"">{0}</a></li>", $name )
+    }
+[void] $menuBuilder.AppendLine( "`t</ul>" )
+
 [void] $menuBuilder.AppendLine( '</div>' )
 
 if( -not (Test-Path $DestinationPath -PathType Container) )
@@ -126,4 +139,13 @@ $commands |
     #Where-Object { $_.Name -eq 'Invoke-SqlScript' } | 
     Where-Object { $config.CommandsToSkip -notcontains $_.Name } |
     Get-Help -Full | 
+    Convert-HelpToHtml -Menu $menuBuilder.ToString() -Config $config -DestinationPath $DestinationPath
+
+$config.Scripts |
+    ForEach-Object { Join-Path -Path $ConfigFileRoot -ChildPath $_ -Resolve } |
+    ForEach-Object { 
+        $topic = Get-Help -Full -Name $_ 
+        $topic.Name = Split-Path -Leaf -Path $topic.Name
+        $topic
+    } |
     Convert-HelpToHtml -Menu $menuBuilder.ToString() -Config $config -DestinationPath $DestinationPath
