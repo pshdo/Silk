@@ -100,7 +100,7 @@ $menuBuilder = New-Object Text.StringBuilder
 [void] $menuBuilder.AppendFormat( "`t<ul class=""CommandMenu"">`n" )
 $config.Topics |
     ForEach-Object {
-        [void] $menuBuilder.AppendFormat( "`t`t<li><a href=""{0}"">{1}</a></li>", $_.FileName, $_.Title )
+        [void] $menuBuilder.AppendFormat( "`t`t<li><a href=""{0}"">{1}</a></li>`n", $_.FileName, $_.Title )
     }
 [void] $menuBuilder.AppendLine( "`t</ul>" )
 
@@ -109,7 +109,7 @@ $config.Topics |
 $commands | 
     Where-Object { $config.CommandsToSkip -notcontains $_ } |
     ForEach-Object {
-        [void] $menuBuilder.AppendFormat( "`t`t<li><a href=""{0}.html"">{0}</a></li>", $_.Name )
+        [void] $menuBuilder.AppendFormat( "`t`t<li><a href=""{0}.html"">{0}</a></li>`n", $_.Name )
     }
 [void] $menuBuilder.AppendLine( "`t</ul>" )
 
@@ -118,7 +118,7 @@ $commands |
 $config.Scripts |
     ForEach-Object {
         $name = Split-Path -Leaf $_
-        [void] $menuBuilder.AppendFormat( "`t`t<li><a href=""{0}.html"">{0}</a></li>", $name )
+        [void] $menuBuilder.AppendFormat( "`t`t<li><a href=""{0}.html"">{0}</a></li>`n", $name )
     }
 [void] $menuBuilder.AppendLine( "`t</ul>" )
 
