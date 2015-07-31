@@ -15,7 +15,7 @@ filter Convert-HelpToHtml
         # The display name. Useful if the command name being documented is different than its public name, e.g. DSC resources.
         $DisplayName,
 
-        [string]
+        [string[]]
         # The syntax of the command. Useful when showing syntax for DSC resources.
         $Syntax,
 
