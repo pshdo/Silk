@@ -55,7 +55,6 @@ function New-ModuleHelpIndex
     <ul>
         {1}
     </ul>
-</div>
 '@ -f $_,($commands -join ([Environment]::NewLine))
         }
 
@@ -123,7 +122,7 @@ function New-ModuleHelpIndex
         }
 
         $selectedAttr = ''
-        if( ($tagCloud -and $ID -eq 'ByTag') -or $ID -eq 'ByName' )
+        if( ($tagCloud -and $ID -eq 'ByTag') -or ($ID -eq 'ByName' -and -not $tagCloud) )
         {
             $selectedAttr = 'class="selected"'
         }
@@ -145,10 +144,10 @@ function New-ModuleHelpIndex
             return
         }
 
-        $styleAttr = ''
-        if( ($ID -ne 'Tag' -and $tagCloud) -or $ID -ne 'Name' )
+        $styleAttr = 'display:none;'
+        if( ($ID -eq 'Tag' -and $tagCloud) -or ($ID -eq 'Name' -and -not $tagCloud) )
         {
-            $styleAttr = 'display:none;'
+            $styleAttr = ''
         }
 
         @'
