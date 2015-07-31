@@ -67,7 +67,13 @@ function Convert-RelatedLinkToHtml
 
                 if( $ModuleName -and (Get-Command -Name $_ -Module $ModuleName -ErrorAction Ignore) )
                 {
-                    return '<a href="{0}.html">{0}</a>' -f $_
+                    $cmdName = $_
+                    $alias = Get-Alias -Name $_ -ErrorAction Ignore | Where-Object { $_.ModuleName -eq $ModuleName }
+                    if( $alias )
+                    {
+                        $cmdName = $alias.ReferencedCommand
+                    }
+                    return '<a href="{0}.html">{1}</a>' -f $cmdName,$_
                 }
 
                 $cmd = Get-Command -Name $_ -ErrorAction Ignore
