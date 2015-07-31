@@ -19,10 +19,12 @@ $markdown.AutoHyperlink = $true
 $loadedTypes = @{ }
 [AppDomain]::CurrentDomain.GetAssemblies() | 
     ForEach-Object { $_.GetTypes() } | 
+    Where-Object { $_.IsPublic } |
+    Sort-Object -Property 'Name' |
     ForEach-Object { 
         if( $loadedTypes.ContainsKey( $_.Name ) )
         {
-            Write-Verbose ("Found multiple <{0}> types." -f $_.Name)
+            Write-Verbose ("Found multiple <{0}> types <{1}> <{2}>." -f $_.Name,$_.FullName,$loadedTypes[$_.Name])
         }
         else
         {
@@ -32,10 +34,9 @@ $loadedTypes = @{ }
 
 $filesToSkip = @{
                     'Import-Silk' = $true;
-                    'New-ModuleWebsite'= $true;
                 }
 
-Get-Item (Join-Path $PSScriptRoot *.ps1) | 
+Get-Item (Join-Path $PSScriptRoot *-*.ps1) | 
     Where-Object { -not $filesToSkip.ContainsKey( $_.BaseName ) } |
     ForEach-Object {
         Write-Debug ("Importing sub-module {0}." -f $_.FullName)
