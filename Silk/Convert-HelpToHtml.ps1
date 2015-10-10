@@ -33,6 +33,10 @@ filter Convert-HelpToHtml
         $synopsis = $help.Synopsis | Convert-MarkdownToHtml
         if( -not $Syntax )
         {
+            $help.Syntax |
+                Where-Object { [IO.Path]::IsPathRooted($_.syntaxItem.name) } |
+                ForEach-Object { $_.syntaxItem.Name = Split-Path -Leaf -Path $_.syntaxItem.name }
+
             $Syntax = $help.Syntax | Out-HtmlString | Format-ForHtml | ForEach-Object { $_ -split "`n" }
         }
         if( $Syntax )
@@ -236,6 +240,10 @@ $description
     if( -not $DisplayName )
     {
         $DisplayName = $commandName
+        if( [IO.Path]::IsPathRooted($DisplayName) )
+        {
+            $DisplayName = Split-Path -Leaf -Path $DisplayName
+        }
     }
 
     @"

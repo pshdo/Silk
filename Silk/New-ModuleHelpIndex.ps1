@@ -12,6 +12,11 @@ function New-ModuleHelpIndex
         # The name of the module whose index page to create.
         $ModuleName,
 
+        [Parameter(Mandatory=$true)]
+        [string[]]
+        # The names of any scripts that should be included.
+        $Script,
+
         [string]
         # The path to the tags file. If not provided, no tag tab is generated.
         $TagsJsonPath
@@ -87,6 +92,18 @@ function New-ModuleHelpIndex
 '@ -f $verb,($verbCommands -join ([Environment]::NewLine))
     }
 
+    $scriptContent = ''
+    if( $Script )
+    {
+        $scriptContent = @"
+<h2>Scripts</h2>
+
+<ul>
+    $($Script | ForEach-Object { '<li><a href="{0}.html">{0}</a></li>' -f $_ })
+</ul>
+"@
+    }
+
     $topicList = New-Object 'Collections.Generic.List[string]'
 
     $aboutTopics = Get-Module -Name $ModuleName |
@@ -155,8 +172,8 @@ function New-ModuleHelpIndex
     @"
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script>
-jQuery( document ).ready(function() {{
-    jQuery("#CommandsMenu > li").click( function() {{
+jQuery( document ).ready(function() {
+    jQuery("#CommandsMenu > li").click( function() {
         var selectedLi = jQuery("#CommandsMenu li.selected")
         selectedLi.removeClass("selected");
         
@@ -172,15 +189,17 @@ jQuery( document ).ready(function() {{
         jQuery('#' + id + 'Content').show();
         
         return false;
-    }});
-}});
+    });
+});
 </script>
 
 <h2>About Help Topics</h2>
 
 <ul>
-    {0}
+    $($topicList.ToArray() -join ([Environment]::NewLine))
 </ul>
+
+$($scriptContent)
 
 <h2>Commands</h1>
 
@@ -197,6 +216,6 @@ jQuery( document ).ready(function() {{
     $( New-CommandContentDiv 'Verb' $verbList )
 
 </div>
-"@ -f ($topicList.ToArray() -join ([Environment]::NewLine))
+"@
 
 }
