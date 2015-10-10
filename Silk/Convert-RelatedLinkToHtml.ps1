@@ -18,7 +18,11 @@ function Convert-RelatedLinkToHtml
 
         [string]
         # The name of the module the command is in.
-        $ModuleName
+        $ModuleName,
+
+        [string[]]
+        # The names of any scripts in the module.
+        $Script
     )
 
     begin
@@ -82,11 +86,11 @@ function Convert-RelatedLinkToHtml
                     return '<a href="{0}.html">{1}</a>' -f $cmd.HelpUri,$_
                 }
 
-                if( $aboutTopics -contains $_ )
+                if( $aboutTopics -contains $_ -or $Script -contains $_ )
                 {
                     return '<a href="{0}.html">{0}</a>' -f $_
                 }
-                
+
                 return $_
             }
     }

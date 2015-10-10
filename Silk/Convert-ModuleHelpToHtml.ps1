@@ -67,7 +67,7 @@ function Convert-ModuleHelpToHtml
         if( -not $SkipCommandHelp )
         {
             Write-Progress -Activity $activity -PercentComplete ($count++ / $numPages * 100) -CurrentOperation $command.Name -Status 'Commands'
-            $html = Convert-HelpToHtml -Name $command.Name
+            $html = Convert-HelpToHtml -Name $command.Name -Script $Script
             [pscustomobject]@{
                                 Name = $command.Name;
                                 Type = 'Command';
@@ -79,7 +79,7 @@ function Convert-ModuleHelpToHtml
     foreach( $scriptItem in $scripts )
     {
         Write-Progress -Activity $activity -PercentComplete ($count++ / $numPages * 100) -CurrentOperation $command.Name -Status 'Scripts'
-        $html = Convert-HelpToHtml -Name $scriptItem.FullName -ModuleName $ModuleName
+        $html = Convert-HelpToHtml -Name $scriptItem.FullName -ModuleName $ModuleName -Script $Script
         [pscustomobject]@{
                             Name = $scriptItem.Name;
                             Type = 'Script'
@@ -91,7 +91,7 @@ function Convert-ModuleHelpToHtml
     {
         $topicName = $aboutTopic.BaseName -replace '\.help',''
         Write-Progress -Activity $activity -PercentComplete ($count++ / $numPages * 100) -CurrentOperation $topicName -Status 'About Topics'
-        $html = $aboutTopic | Convert-AboutTopicToHtml -ModuleName $ModuleName
+        $html = $aboutTopic | Convert-AboutTopicToHtml -ModuleName $ModuleName -Script $Script
         [pscustomobject]@{
                             Name = $topicName;
                             Type = 'AboutTopic';
@@ -104,7 +104,7 @@ function Convert-ModuleHelpToHtml
         $dscResourceName = $dscResource.BaseName
         Write-Progress -Activity $activity -PercentComplete ($count++ / $numPages * 100) -CurrentOperation $dscResourceName -Status 'DSC Resources'
         Import-Module -Name $dscResource.FullName
-        $html = Convert-HelpToHtml -Name 'Set-TargetResource' -DisplayName $dscResourceName -Syntax (Get-DscResource -Name $dscResourceName -Syntax) -ModuleName $ModuleName
+        $html = Convert-HelpToHtml -Name 'Set-TargetResource' -DisplayName $dscResourceName -Syntax (Get-DscResource -Name $dscResourceName -Syntax) -ModuleName $ModuleName -Script $Script
         [pscustomobject]@{
                             Name = $dscResourceName;
                             Type = 'DscResource';

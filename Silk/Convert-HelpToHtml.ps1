@@ -21,7 +21,11 @@ filter Convert-HelpToHtml
 
         [string]
         # The name of the module whose help is getting converted.
-        $ModuleName
+        $ModuleName,
+
+        [string[]]
+        # The names of any scripts in the module.
+        $Script
     )
 
     Set-StrictMode -Version 'Latest'
@@ -62,7 +66,7 @@ $description
 "@
         }
     
-        [string[]]$relatedCommands = $help | Convert-RelatedLinkToHtml -ModuleName $ModuleName
+        [string[]]$relatedCommands = $help | Convert-RelatedLinkToHtml -ModuleName $ModuleName -Script $Script
     
         if( $relatedCommands )
         {
