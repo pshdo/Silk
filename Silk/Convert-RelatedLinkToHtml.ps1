@@ -39,7 +39,7 @@ function Convert-RelatedLinkToHtml
         {
             $aboutTopics = Get-Module -Name $ModuleName | 
                                 Select-Object -ExpandProperty 'ModuleBase' | 
-                                Get-ChildItem -Filter 'about_*' | 
+                                Get-ChildItem -Filter 'en-US\about_*' | 
                                 Select-Object -ExpandProperty 'BaseName' | 
                                 ForEach-Object { $_ -replace '\.help$','' }
         }

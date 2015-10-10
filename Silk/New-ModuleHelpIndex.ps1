@@ -99,7 +99,7 @@ function New-ModuleHelpIndex
 
     $aboutTopics = Get-Module -Name $ModuleName |
                         Select-Object -ExpandProperty 'ModuleBase' |
-                        Get-ChildItem -Filter 'about_*.help.txt'
+                        Get-ChildItem -Filter 'en-US\about_*.help.txt'
     foreach( $aboutTopic in $aboutTopics )
     {
         $topicName = $aboutTopic.BaseName -replace '\.help$',''

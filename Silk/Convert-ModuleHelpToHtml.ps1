@@ -30,7 +30,7 @@ function Convert-ModuleHelpToHtml
 
     $aboutTopics = Get-Module -Name $ModuleName |
                         Select-Object -ExpandProperty 'ModuleBase' |
-                        Get-ChildItem -Filter 'about_*.help.txt'
+                        Get-ChildItem -Filter 'en-US\about_*.help.txt'
 
     $dscResources = Get-Module -Name $ModuleName |
                         Select-Object -ExpandProperty 'ModuleBase' |
