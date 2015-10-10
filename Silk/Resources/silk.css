@@ -141,3 +141,29 @@ pre.Syntax
 {
     padding: .25em 0 .25em 0;
 }
+
+
+table#Parameters
+{
+    border-collapse: collapse;
+}
+
+table#Parameters td
+{
+    border-width: 1px solid black;
+}
+
+table#Parameters td, table#Parameters th
+{
+    padding: 0.4em 0.4em;
+}
+
+table#Parameters td.ParamDescription p:first-child
+{
+   margin-top: 0;
+}
+
+table#Parameters td.ParamDescription p:last-child
+{
+   margin-bottom: 0;
+}

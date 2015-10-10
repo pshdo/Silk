@@ -110,13 +110,12 @@ $description
                                                     Where-Object { $_ | Get-Member -name 'Description' } |
                                                     Select-Object -ExpandProperty 'Description' |
                                                     Out-HtmlString | 
-                                                    Convert-MarkdownToHtml | 
-                                                    ForEach-Object { $_.Replace('<p>','').Replace('</p>','') }
+                                                    Convert-MarkdownToHtml
                             @"
 <tr valign='top'>
 	<td>{0}</td>
 	<td>{1}</td>
-	<td>{2}</td>
+	<td class="ParamDescription">{2}</td>
 	<td>{3}</td>
 	<td>{4}</td>
     <td>{5}</td>
@@ -142,7 +141,7 @@ $description
             }
             $parameters = @"
 <h2> Parameters </h2>
-<table border='1'>
+<table id="Parameters">
 <tr>
 	<th>Name</th>
     <th>Type</th>
