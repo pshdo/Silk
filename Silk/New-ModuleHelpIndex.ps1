@@ -14,15 +14,7 @@ function New-ModuleHelpIndex
 
         [string]
         # The path to the tags file. If not provided, no tag tab is generated.
-        $TagsJsonPath,
-
-        [string]
-        # The color of the page's background. Default is `white`.
-        $BackgroundColor = 'white',
-
-        [string]
-        # The color of the borders around the content. Default is `#9DAEC4`, a shade of gray.
-        $BorderColor = '#9DAEC4'
+        $TagsJsonPath
     )
 
     Set-StrictMode -Version 'Latest'
@@ -183,64 +175,6 @@ jQuery( document ).ready(function() {{
     }});
 }});
 </script>
-<style>
-    #CommandsMenu
-    {{
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }}
-
-    #CommandsMenu li 
-    {{
-        border: 1px solid {2};
-        float: left;
-        border-bottom-width: 0;
-        margin: 0em 0.5em 0em 0.5em;
-    }}
-
-    #CommandsMenu a 
-    {{
-        text-decoration: none;
-        display: block;
-        padding: 0.24em 1em;
-        text-align: center;
-        border-bottom: none;
-    }}
-
-    #CommandsMenu .selected a 
-    {{
-        background: {1};
-        font-weight: bold;
-        border-color: {2};
-        position: relative;
-        top: 1px;
-    }}
-
-    #CommandsContent 
-    {{
-        border: 1px solid {2};
-        clear: both;
-        padding: 0 1em;
-    }}
-
-    #ByNameContent
-    {{
-        margin-top: 0em;
-    }}
-
-    #ByNameContent ul
-    {{
-        list-style-type: none;
-        padding-left: 0;
-        margin-top: .5em
-    }}
-
-    #ByNameContent ul li
-    {{
-        padding: .25em 0 .25em 0;
-    }}
-</style>
 
 <h2>About Help Topics</h2>
 
@@ -263,6 +197,6 @@ jQuery( document ).ready(function() {{
     $( New-CommandContentDiv 'Verb' $verbList )
 
 </div>
-"@ -f ($topicList.ToArray() -join ([Environment]::NewLine)),$BackgroundColor,$BorderColor
+"@ -f ($topicList.ToArray() -join ([Environment]::NewLine))
 
 }
