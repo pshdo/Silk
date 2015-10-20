@@ -19,7 +19,6 @@ filter Convert-HelpToHtml
         # The syntax of the command. Useful when showing syntax for DSC resources.
         $Syntax,
 
-        [Parameter(Mandatory=$true)]
         [string]
         # The name of the module whose help is getting converted.
         $ModuleName,
