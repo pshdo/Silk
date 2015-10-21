@@ -74,23 +74,7 @@ function Global:SilkDocumentMe
     Set-StrictMode -Version 'Latest'
 }
 
-Describe 'Convert-HelpToHtml' {
-
-    BeforeAll {
-    }
-
-    AfterAll {
-        Remove-Item -Path $tempDir -Recurse
-        Remove-Item -Path 'function:SilkDocumentMe'
-    }
-
-    It "converts comment based help to HTML" {
-
-        Get-Command -Name 'SilkDocumentMe' | Should Not BeNullOrEmpty
-
-        $html = Convert-HelpToHtml -Name 'SilkDocumentMe'
-        Write-Verbose -Message $html
-        $html | Should Be @"
+$expectedHelp = @"
 <h1>SilkDocumentMe</h1>
 <div class="Synopsis">
 <p>Function that exists to test the <code>Convert-HelpToHtml</code> function.</p>`n`n<p>Make sure it supports multiple paragraphs.</p>
@@ -167,8 +151,26 @@ Describe 'Convert-HelpToHtml' {
 <p>This example exists to make sure multiple examples are converted to HTML.</p>
 
 "@
+
+Describe 'Convert-HelpToHtml' {
+
+    BeforeAll {
     }
-     
+
+    AfterAll {
+        Remove-Item -Path $tempDir -Recurse
+        Remove-Item -Path 'function:SilkDocumentMe'
+    }
+
+    It "converts comment based help to HTML" {
+
+        Get-Command -Name 'SilkDocumentMe' | Should Not BeNullOrEmpty
+
+        $html = Convert-HelpToHtml -Name 'SilkDocumentMe'
+        Write-Verbose -Message $html
+        $html | Should Be $expectedHelp
+    }
+
     It "converts examples with multiple remarks" {
         $html = Convert-HelpToHtml -Name 'Get-Module'
 
@@ -177,5 +179,15 @@ Describe 'Convert-HelpToHtml' {
         $help | Should Not BeNullOrEmpty
         ,@($help.Examples.example[8].remarks.text) | Should Not BeNullOrEmpty
         $help.Examples.example[8].remarks.text | ForEach-Object { $html | Should Match ([regex]::Escape( $_.Trim() )) }
+    }
+
+    It 'supports piping command objects' {
+        $html = Get-Command -Name 'SilkDocumentMe' | Convert-HelpToHtml
+        $html | Should Be $expectedHelp
+    }
+
+    It 'supports piping command names' {
+        $html = 'SilkDocumentMe' | Convert-HelpToHtml
+        $html | Should Be $expectedHelp
     }
 }
