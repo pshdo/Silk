@@ -89,7 +89,7 @@ Describe 'Convert-HelpToHtml' {
         Get-Command -Name 'SilkDocumentMe' | Should Not BeNullOrEmpty
 
         $html = Convert-HelpToHtml -Name 'SilkDocumentMe'
-        Write-Verbose -Message $html -Verbose
+        Write-Verbose -Message $html
         $html | Should Be @"
 <h1>SilkDocumentMe</h1>
 <div class="Synopsis">
@@ -167,5 +167,15 @@ Describe 'Convert-HelpToHtml' {
 <p>This example exists to make sure multiple examples are converted to HTML.</p>
 
 "@
+    }
+     
+    It "converts examples with multiple remarks" {
+        $html = Convert-HelpToHtml -Name 'Get-Module'
+
+        $help = Get-Help -Name 'Get-Module'
+
+        $help | Should Not BeNullOrEmpty
+        ,@($help.Examples.example[8].remarks.text) | Should Not BeNullOrEmpty
+        $help.Examples.example[8].remarks.text | ForEach-Object { $html | Should Match ([regex]::Escape( $_.Trim() )) }
     }
 }

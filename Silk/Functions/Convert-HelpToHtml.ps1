@@ -39,7 +39,7 @@ filter Convert-HelpToHtml
         {
             $fullCommandName = '{0}\{1}' -f $ModuleName,$commandName
         }
-        Write-Verbose -Message $fullCommandName -Verbose
+        Write-Verbose -Message $fullCommandName
         $help = Get-Help -Name $fullCommandName -Full
 
         if( -not $DisplayName )
@@ -273,7 +273,7 @@ $description
 <h2>{0}</h2>
 {1}
 {2}
-"@ -f $title,$code,$remarks
+"@ -f $title,$code,($remarks -join [Environment]::NewLine)
                 }
         }
 
