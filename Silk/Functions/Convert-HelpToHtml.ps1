@@ -32,6 +32,8 @@ filter Convert-HelpToHtml
 
     foreach( $commandName in $Name )
     {
+        $html = New-Object 'Text.StringBuilder'
+
         $fullCommandName = $commandName
         if( (Get-Help -Name $commandName | Measure-Object).Count -gt 1 )
         {
@@ -40,7 +42,23 @@ filter Convert-HelpToHtml
         Write-Verbose -Message $fullCommandName -Verbose
         $help = Get-Help -Name $fullCommandName -Full
 
+        if( -not $DisplayName )
+        {
+            $DisplayName = $commandName
+            if( [IO.Path]::IsPathRooted($DisplayName) )
+            {
+                $DisplayName = Split-Path -Leaf -Path $DisplayName
+            }
+        }
+        
+        [void]$html.AppendFormat( '<h1>{0}</h1>{1}', $DisplayName, [Environment]::NewLine )
+
         $synopsis = $help.Synopsis | Convert-MarkdownToHtml
+        if( $synopsis )
+        {
+            [void]$html.AppendFormat( '<div class="Synopsis">{0}{1}{0}</div>{0}', [Environment]::NewLine, $synopsis )
+        }
+
         if( -not $Syntax )
         {
             $help.Syntax |
@@ -49,12 +67,14 @@ filter Convert-HelpToHtml
 
             $Syntax = $help.Syntax | Out-HtmlString | Format-ForHtml | ForEach-Object { $_ -split "`n" }
         }
+
         if( $Syntax )
         {
-            $Syntax = @"
+            [void]$html.AppendLine( @"
+
 <h2>Syntax</h2>
 <pre class="Syntax"><code>{0}</code></pre>
-"@ -f ($Syntax -join "</code></pre>`n<pre class=""Syntax""><code>")
+"@ -f ($Syntax -join "</code></pre>$([Environment]::NewLine)<pre class=""Syntax""><code>") )
         }
 
         $description = $null
@@ -64,12 +84,13 @@ filter Convert-HelpToHtml
         }
         if( $description )
         {
-            $description = @"
+            [void]$html.AppendLine( @"
+
 <h2>Description</h2>
 <div class="Description">
 $description
 </div>
-"@
+"@ )
         }
     
         [string[]]$relatedCommands = $help | Convert-RelatedLinkToHtml -ModuleName $ModuleName -Script $Script
@@ -77,13 +98,14 @@ $description
         if( $relatedCommands )
         {
             $relatedCommands = $relatedCommands | ForEach-Object { "<li>{0}</li>" -f $_ }
-            $relatedCommands = @"
+            [void]$html.AppendLine( @"
+
 <h2>Related Commands</h2>
 
-<ul>
+<ul class="RelatedCommands">
 {0}
 </ul>
-"@ -f ($relatedCommands -join ([Environment]::NewLine))
+"@ -f ($relatedCommands -join ([Environment]::NewLine)) )
         }
     
         $commonParameterNames = @{
@@ -149,7 +171,8 @@ $description
 </tr>
 "@
             }
-            $parameters = @"
+            [void]$html.AppendLine( (@"
+
 <h2> Parameters </h2>
 <table id="Parameters">
 <tr>
@@ -163,55 +186,70 @@ $description
 {0}
 {1}
 </table>
-"@ -f ($parameters -join "`n"),$commonParameters
+"@ -f ($parameters -join [Environment]::NewLine),$commonParameters))
         }
 
         $inputTypes = @()
-        if( $help | Get-Member -Name 'inputTypes' )
+        if( ($help | Get-Member -Name 'inputTypes') -and ($help.inputTypes | Get-Member 'inputType') )
         {
-            $inputTypes = $help.inputTypes | Out-HtmlString
+            $inputTypes = $help.inputTypes.inputType |
+                                Where-Object {  ($_ | Get-Member -Name 'type') -and $_.type -and $_.type.name -match '^([^\s]+)\s*(.*)?$' } |
+                                ForEach-Object { 
+                                    $typeLink = Get-TypeDocumentationLink -CommandName $commandName -TypeName $Matches[1].Trim('.')
+                                    '{0}. {1}' -f $typeLink,$matches[2]
+                                } |
+                                Convert-MarkdownToHtml
         }
 
         if( $inputTypes )
         {
-            $inputTypes = @"
-<h2>Input Type</h2>
-<div>{0}</div>
-"@ -f $inputTypes
+            [void]$html.AppendLine( @"
+
+<h2>Input Types</h2>
+<div class="InputTypes">
+{0}
+</div>
+"@ -f ($inputTypes -join [Environment]::NewLine))
         }
     
         $returnValues =@()
-        if( ($help | Get-Member -Name 'returnValues') -and ($help.returnValues | Get-Member -Name 'returnValue') -and ($help.returnValues.returnValue | Get-Member -Name 'type') -and $help.returnValues.returnValue.type )
+        if( ($help | Get-Member -Name 'returnValues') -and ($help.returnValues | Get-Member -Name 'returnValue') )
         {
-            if( $help.returnValues.returnValue.type.name -match '^([^\s]+)\s*(.*)?$' )
-            {
-                $typeLink = Get-TypeDocumentationLink -CommandName $commandName -TypeName $Matches[1].Trim('.')
-                $returnValues = '{0}. {1}' -f $typeLink,$matches[2]
-                Write-Verbose $returnValues
-            }
-            $returnValues = $returnValues | Convert-MarkdownToHtml
+            $returnValues = $help.returnValues.returnValue |
+                                Where-Object {  ($_ | Get-Member -Name 'type') -and $_.type -and $_.type.name -match '^([^\s]+)\s*(.*)?$' } |
+                                ForEach-Object { 
+                                    $typeLink = Get-TypeDocumentationLink -CommandName $commandName -TypeName $Matches[1].Trim('.')
+                                    '{0}. {1}' -f $typeLink,$matches[2]
+                                } |
+                                Convert-MarkdownToHtml
         }
 
         if( $returnValues )
         {
-            $returnValues = @"
+            [void]$html.AppendLine( @"
+
 <h2>Return Values</h2>
+<div class="ReturnValues">
 {0}
-"@ -f $returnValues
+</div>
+"@ -f ($returnValues -join [Environment]::NewLine))
         }
     
         $notes = ''
         if( $help | Get-Member -Name 'AlertSet' )
         {
-            $notes = $help.AlertSet | Out-HtmlString
+            $notes = $help.AlertSet | Out-HtmlString | ForEach-Object { $_ -replace "\r?\n    ",[Environment]::NewLine } | Convert-MarkdownToHtml
         }
 
         if( $notes )
         {
-            $notes = @"
+            [void]$html.AppendLine( @"
+
 <h2>Notes</h2>
-<div>{0}</div>
-"@ -f $notes
+<div class="Notes">
+{0}
+</div>
+"@ -f $notes)
         }
     
         $examples = @()
@@ -231,50 +269,20 @@ $description
                     }
                     $remarks = $_.remarks | Out-HtmlString | Convert-MarkdownToHtml
                     @"
+
 <h2>{0}</h2>
 {1}
 {2}
 "@ -f $title,$code,$remarks
                 }
         }
-    
-        $filename = $help.Name
-        $fileName = Split-Path -Leaf -Path $filename # handle help for scripts
-        $filename = '{0}.html' -f $filename
-        if( $help | Get-Member -Name 'FileName' )
+
+        if( $examples )
         {
-            $filename = $help.FileName
+            [void]$html.AppendLine( ($examples -join ([Environment]::NewLine * 2)) )
         }
 
-    if( -not $DisplayName )
-    {
-        $DisplayName = $commandName
-        if( [IO.Path]::IsPathRooted($DisplayName) )
-        {
-            $DisplayName = Split-Path -Leaf -Path $DisplayName
-        }
-    }
-
-    @"
-<h1>$DisplayName</h1>
-<div>$synopsis</div>
-
-$syntax
-    
-$description
-    
-$relatedCommands
-
-$parameters
-        
-$inputTypes
-        
-$returnValues
-        
-$notes
-        
-$($examples -join ([Environment]::NewLine * 2))
-"@
+        $html.ToString()
     }
 }
 
