@@ -34,7 +34,7 @@ function Publish-PowerShellGalleryModule
     .EXAMPLE
     Publish-PowerShellGalleryModule -Name 'Carbon' -Version '2.0.0' -LicenseUri ''http://www.apache.org/licenses/LICENSE-2.0'
     #>
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess=$true)]
     param(
         [Parameter(Mandatory=$true)]
         [string]
@@ -74,6 +74,7 @@ function Publish-PowerShellGalleryModule
     )
 
     Set-StrictMode -Version 'Latest'
+    Use-CallerPreference -Cmdlet $PSCmdlet -Session $ExecutionContext.SessionState
 
     $manifest = Test-ModuleManifest -Path $ManifestPath
     if( -not $manifest )
@@ -86,26 +87,30 @@ function Publish-PowerShellGalleryModule
         $Name = $manifest.Name
     }
 
-    if( Get-Module -Name 'PowerShellGet' )
+    if( Get-Module -ListAvailable -Name 'PowerShellGet' )
     {
         if( -not (Find-Module -Name $Name -RequiredVersion $manifest.Version -Repository 'PSGallery' -ErrorAction Ignore) )
         {
             $releaseNotes = Get-ModuleReleaseNotes -ManifestPath $ManifestPath -ReleaseNotesPath $ReleaseNotesPath
             Write-Verbose -Message ('Publishing to PowerShell Gallery.')
-            if( -not $ApiKey )
+            
+            if( $PSCmdlet.ShouldProcess('publish module to PowerShell Gallery','','') )
             {
-                $ApiKey = Read-Host -Prompt ('Please enter PowerShell Gallery API key')
+                if( -not $ApiKey )
+                {
+                    $ApiKey = Read-Host -Prompt ('Please enter PowerShell Gallery API key')
+                }
+
+                Publish-Module -Path $ModulePath `
+                               -Repository 'PSGallery' `
+                               -NuGetApiKey $ApiKey `
+                               -LicenseUri $LicenseUri `
+                               -ReleaseNotes $releaseNotes `
+                               -Tags $Tags `
+                               -ProjectUri $ProjectUri
+
+                Find-Module -Name $Name -RequiredVersion $manifest.Version -Repository 'PSGallery'
             }
-
-            Publish-Module -Path $ModulePath `
-                           -Repository 'PSGallery' `
-                           -NuGetApiKey $ApiKey `
-                           -LicenseUri $LicenseUri `
-                           -ReleaseNotes $releaseNotes `
-                           -Tags $Tags `
-                           -ProjectUri $ProjectUri
-
-            Find-Module -Name $Name -RequiredVersion $manifest.Version -Repository 'PSGallery'
         }
         else
         {

@@ -18,7 +18,7 @@ function Publish-NuGetPackage
     .SYNOPSIS
     Creates and publishes a NuGet package to nuget.org.
     #>
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess=$true)]
     param(
         [Parameter(Mandatory=$true)]
         [string]
@@ -53,6 +53,7 @@ function Publish-NuGetPackage
     )
 
     Set-StrictMode -Version 'Latest'
+    Use-CallerPreference -Cmdlet $PSCmdlet -Session $ExecutionContext.SessionState
 
     $nugetPath = Join-Path -Path $PSScriptRoot -ChildPath '..\bin\NuGet.exe' -Resolve
     if( -not $nugetPath )
@@ -101,9 +102,14 @@ function Publish-NuGetPackage
                 continue
             }
 
+            $verbosity = 'normal'
+            if( $VerbosePreference -eq 'Continue' )
+            {
+                $verbosity = 'detailed'
+            }
             if( -not (Test-Path -Path $nupkgPath -PathType Leaf) )
             {
-                & $nugetPath pack $NuspecPath -BasePath '.' -NoPackageAnalysis
+                & $nugetPath pack $NuspecPath -BasePath '.' -NoPackageAnalysis -Verbosity $verbosity
                 if( -not (Test-Path -Path $nupkgPath -PathType Leaf) )
                 {
                     Write-Error ('NuGet package ''{0}'' not found.' -f $nupkgPath)
@@ -126,20 +132,23 @@ function Publish-NuGetPackage
                 return
             }
 
-            if( -not $repoApiKey )
+            if( $PSCmdlet.ShouldProcess(('publish package to {0}' -f $repoName),'','') -or $false )
             {
-                $repoApiKey = Read-Host -Prompt ('Please enter your {0} API key' -f $repoName)
                 if( -not $repoApiKey )
                 {
-                    Write-Error -Message ('The {0} API key is required. Package not published to {1}.' -f $repoName)
-                    continue
+                    $repoApiKey = Read-Host -Prompt ('Please enter your {0} API key' -f $repoName)
+                    if( -not $repoApiKey )
+                    {
+                        Write-Error -Message ('The {0} API key is required. Package not published to {1}.' -f $repoName)
+                        continue
+                    }
                 }
+
+                & $nugetPath push $nupkgPath -ApiKey $repoApiKey -Source $serverUrl -Verbosity $verbosity
+
+                $resp = Invoke-WebRequest -Uri $packageUrl
+                $resp | Select-Object -Property 'StatusCode','StatusDescription',@{ Name = 'Uri'; Expression = { $packageUrl }}
             }
-
-            & $nugetPath push $nupkgPath -ApiKey $repoApiKey -Source $serverUrl
-
-            $resp = Invoke-WebRequest -Uri $packageUrl
-            $resp | Select-Object -Property 'StatusCode','StatusDescription',@{ Name = 'Uri'; Expression = { $packageUrl }}
         }
     }
     finally
