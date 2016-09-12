@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-function Publish-NuGetPackage
+function Publish-ChocolateyPackage
 {
     <#
     .SYNOPSIS
@@ -25,7 +25,7 @@ function Publish-NuGetPackage
         # The path to the module manifest of the module you want to publish.
         $NupkgPath,
 
-        [object]
+        [string]
         # The API key(s) to use. To supply multiple API keys, use a hashtable where each key is a repository server name and the value is the API key for that repository. For example,
         #
         # @{ 'nuget.org' = '395edfa5-652f-4598-868e-c0a73be02c84' }
@@ -37,22 +37,22 @@ function Publish-NuGetPackage
     Set-StrictMode -Version 'Latest'
     Use-CallerPreference -Cmdlet $PSCmdlet -Session $ExecutionContext.SessionState
 
-    $nugetPath = Join-Path -Path $PSScriptRoot -ChildPath '..\bin\NuGet.exe' -Resolve
-    if( -not $nugetPath )
+    if( -not (Get-Command -Name 'choco.exe' -ErrorAction Ignore) )
     {
+        Write-Error -Message ('Chocolatey is not installed. Go to http://chocolatey.org for installation instructions.')
         return
     }
 
     if( -not (Test-Path -Path $NupkgPath -PathType Leaf) )
     {
-        Write-Error -Message ('NuGet package ''{0}'' does not exist.' -f $NupkgPath)
+        Write-Error -Message ('Chocolatey package ''{0}'' does not exist.' -f $NupkgPath)
         return
     }
 
     $nupkgName = [IO.Path]::GetFileNameWithoutExtension($NupkgPath)
     if( $nupkgName -notmatch '^(.+)\.(\d+\.\d+\.\d)+$' )
     {
-        Write-Error -Message ('NuGet package ''{0}'' does not have the version to publish in its name.' -f $nupkgName)
+        Write-Error -Message ('Chocolatey package ''{0}'' does not have the version to publish in its name.' -f $nupkgName)
         return
     }
 
@@ -60,7 +60,7 @@ function Publish-NuGetPackage
     $version = $Matches[2]
     try
     {
-        $packageUrl = 'https://nuget.org/api/v2/package/{0}/{1}' -f $packageName,$version
+        $packageUrl = 'https://chocolatey.org/api/v2/package/{0}/{1}' -f $packageName,$version
         try
         {
             $resp = Invoke-WebRequest -Uri $packageUrl -ErrorAction Ignore
@@ -73,29 +73,29 @@ function Publish-NuGetPackage
 
         if( -not $publish )
         {
-            Write-Warning ('NuGet package {0} {1} already published to nuget.org.' -f $packageName,$version)
+            Write-Warning ('Chocolatey package {0} {1} already published to chocolatey.org.' -f $packageName,$version)
             return
         }
 
-        if( $PSCmdlet.ShouldProcess(('publish package to nuget.org'),'','') )
+        if( $PSCmdlet.ShouldProcess(('publish package to chocolatey.org'),'','') )
         {
             if( -not $ApiKey )
             {
-                $ApiKey = Read-Host -Prompt ('Please enter your nuget.org API key')
+                $ApiKey = Read-Host -Prompt ('Please enter your chocolatey.org API key')
                 if( -not $ApiKey )
                 {
-                    Write-Error -Message ('The nuget.org API key is required. Package not published to nuget.org.')
+                    Write-Error -Message ('The chocolatey.org API key is required. Package not published to chocolatey.org')
                     continue
                 }
             }
 
-            $verbosity = 'normal'
+            $verbosity = ''
             if( $VerbosePreference -eq 'Continue' )
             {
-                $verbosity = 'detailed'
+                $verbosity = '-v'
             }
 
-            & $nugetPath push $nupkgPath -ApiKey $ApiKey -Source 'nuget.org' -Verbosity $verbosity
+            choco.exe push --source 'https://chocolatey.org' --key $ApiKey $verbosity $nupkgPath
 
             $resp = Invoke-WebRequest -Uri $packageUrl
             $resp | Select-Object -Property 'StatusCode','StatusDescription',@{ Name = 'Uri'; Expression = { $packageUrl }}
