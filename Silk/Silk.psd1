@@ -25,7 +25,7 @@
 ModuleToProcess = 'Silk.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.1.0'
+ModuleVersion = '0.2.0'
 
 # ID used to uniquely identify this module
 GUID = 'b4d24de5-aa00-4a18-bbde-ac8bb641751f'
