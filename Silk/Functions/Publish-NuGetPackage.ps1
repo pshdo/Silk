@@ -95,7 +95,7 @@ function Publish-NuGetPackage
                 $verbosity = 'detailed'
             }
 
-            & $nugetPath push $nupkgPath -ApiKey $ApiKey -Source 'nuget.org' -Verbosity $verbosity
+            & $nugetPath push $nupkgPath -ApiKey $ApiKey -Source 'https://nuget.org/api/v2/package' -Verbosity $verbosity
 
             $resp = Invoke-WebRequest -Uri $packageUrl
             $resp | Select-Object -Property 'StatusCode','StatusDescription',@{ Name = 'Uri'; Expression = { $packageUrl }}

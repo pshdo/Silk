@@ -17,6 +17,14 @@ function Set-ModuleNuspec
         # Path to the releaes notes file.
         $ReleaseNotesPath,
 
+        [string]
+        # The ID of the package. If not provided, the existing ID in the .nuspec file is left in place.
+        $PackageID,
+
+        [string]
+        # The title of the package. If not provided, the existing title in the .nuspec file is left in place.
+        $PackageTitle,
+
         [string[]]
         # Tags to add to the manifest. Tags are space-delimited, so tags shouldn't have spaces.
         $Tags
@@ -49,6 +57,16 @@ function Set-ModuleNuspec
     }
 
     $nuspecMetadata = $nuspec.package.metadata
+
+    if( $PackageID )
+    {
+        $nuspecMetadata.id = $PackageID
+    }
+
+    if( $PackageTitle )
+    {
+        $nuspecMetadata.title = $PackageTitle
+    }
 
     $nuspecMetadata.description = $manifest.Description
     $nuspecMetadata.version = $manifest.Version.ToString()

@@ -75,8 +75,6 @@ $tags = @( 'powershell', 'module', 'help', 'tools' )
 
 Set-ModuleManifestMetadata -ManifestPath $manifestPath -Tag $tags -ReleaseNotesPath $releaseNotesPath
 
-Set-ModuleNuspec -ManifestPath $manifestPath -NuspecPath $nuspecPath -ReleaseNotesPath $releaseNotesPath -Tags $tags
-
 $outputDirectory = Join-Path -Path $PSScriptRoot -ChildPath 'Output'
 if( (Test-Path -Path $outputDirectory -PathType Container) )
 {
@@ -87,15 +85,30 @@ else
     New-Item -Path $outputDirectory -ItemType 'directory'
 }
 
+Set-ModuleNuspec -ManifestPath $manifestPath `
+                 -NuspecPath $nuspecPath `
+                 -ReleaseNotesPath $releaseNotesPath `
+                 -Tags $tags `
+                 -PackageID 'Silk.PowerShell' `
+                 -PackageTitle 'Silk.PowerShell'
+
+
 New-NuGetPackage -OutputDirectory (Join-Path -Path $outputDirectory -ChildPath 'nuget.org') `
-                    -ManifestPath $manifestPath `
-                    -NuspecPath $nuspecPath `
-                    -NuspecBasePath $PSScriptRoot `
-                    -PackageName 'Silk'
+                 -ManifestPath $manifestPath `
+                 -NuspecPath $nuspecPath `
+                 -NuspecBasePath $PSScriptRoot `
+                 -PackageName 'Silk.PowerShell'
+
+Set-ModuleNuspec -ManifestPath $manifestPath `
+                 -NuspecPath $nuspecPath `
+                 -ReleaseNotesPath $releaseNotesPath `
+                 -Tags $tags `
+                 -PackageID 'Silk' `
+                 -PackageTitle 'Silk'
 
 New-ChocolateyPackage -OutputDirectory (Join-Path -Path $outputDirectory -ChildPath 'chocolatey.org') `
-                        -ManifestPath $manifestPath `
-                        -NuspecPath $nuspecPath
+                      -ManifestPath $manifestPath `
+                      -NuspecPath $nuspecPath
 
 $source = Join-Path -Path $PSScriptRoot -ChildPath 'Silk'
 $destination = Join-Path -Path $outputDirectory -ChildPath 'Silk'
@@ -109,5 +122,8 @@ Get-ChildItem -Path (Join-Path -Path $PSScriptRoot -ChildPath 'build.ps1') |
 
 Get-ChildItem -Path (Join-Path -Path $PSScriptRoot -ChildPath 'New-Website.ps1') |
     Copy-Item -Destination $examplesDir
+
+Get-ChildItem -Path (Join-Path -Path $PSScriptRoot -ChildPath 'Publish-Silk.ps1') |
+    Copy-Item -Destination (Join-Path -Path $examplesDir -ChildPath 'Publish-Module.ps1')
 
 Get-ChildItem -Path 'RELEASE_NOTES.md','LICENSE','NOTICE' | Copy-Item -Destination $destination
