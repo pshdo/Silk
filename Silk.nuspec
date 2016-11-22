@@ -39,5 +39,6 @@
     <file src=".\NOTICE*" target="Silk" />
     <file src=".\RELEASE_NOTES.md" target="" />
     <file src=".\RELEASE_NOTES.md" target="Silk" />
+    <file src=".\build.ps1" target="Silk\Examples\Invoke-Build.ps1" />
   </files>
 </package>

@@ -101,4 +101,10 @@ $source = Join-Path -Path $PSScriptRoot -ChildPath 'Silk'
 $destination = Join-Path -Path $outputDirectory -ChildPath 'Silk'
 robocopy.exe $source $destination /MIR /NJH /NJS /NP /NDL /XD /XF '*.pdb'
 
+$examplesDir = Join-Path -Path $destination -ChildPath 'Examples'
+New-Item -Path $examplesDir -ItemType 'Directory'
+
+Get-ChildItem -Path (Join-Path -Path $PSScriptRoot -ChildPath 'build.ps1') |
+    Copy-Item -Destination (Join-Path -Path $examplesDir -ChildPath 'Invoke-Build.ps1')
+
 Get-ChildItem -Path 'RELEASE_NOTES.md','LICENSE','NOTICE' | Copy-Item -Destination $destination
