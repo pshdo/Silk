@@ -15,6 +15,7 @@
 <package>
   <metadata>
     <id>Silk</id>
+    <title>Silk</title>
     <version>0.2.0</version>
     <authors>Aaron Jensen</authors>
     <owners>Aaron Jensen</owners>
@@ -25,7 +26,8 @@
     <description>PowerShell module for publishing another module's help system as a website.</description>
     <language>en-us</language>
     <releaseNotes>
- * Improved `about_Silk` help topic.</releaseNotes>
+ * Improved `about_Silk` help topic.
+ * Added example scripts `Invoke-Build.ps1`, `Publish-Module.ps1`, and `New-Website.ps1` to show how to use Silk.</releaseNotes>
     <copyright>(c) 2013 Aaron Jensen. All rights reserved.</copyright>
     <tags>powershell module help tools</tags>
   </metadata>
@@ -41,5 +43,6 @@
     <file src=".\RELEASE_NOTES.md" target="Silk" />
     <file src=".\New-Website.ps1" target="Silk\Examples" />
     <file src=".\build.ps1" target="Silk\Examples\Invoke-Build.ps1" />
+    <file src=".\Publish-Silk.ps1" target="Silk\Examples\Publish-Module.ps1" />
   </files>
 </package>
