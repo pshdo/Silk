@@ -2,17 +2,110 @@ NAME
     Silk
     
 SYNOPSIS
-    Silk is a PowerShell module for publishing a PowerShell module's help topics as a website.
-    
+    Silk is a PowerShell module for automaticaly versioning, building, 
+    authoring and publishing PowerShell modules.
+
 DESCRIPTION
 
-  Introduction
-  
-    Silk publishes a PowerShell module's help topics as a website.  It creates an html page for each function in the module.  The module's main about topic (e.g. `about_Silk`) become's the site's index page.  Additional about topics become additional navigation elements.
-    
-    Details of how Silk publishes the website can be controlled via a JSON manifest file.
+    Silk is a PowerShell module for PowerShell module authors. Use it to:
 
-  System Requirements
-  
-    PowerShell 3
+    * Automatically version of your module
+    * Easily build your module, including any compiled assemblies
+    * Publish your module as a Chocolatey and/or NuGet package
+    * Publish your module to the PowerShell gallery
+    * Convert your module's help as a website
+
+    If you look in Silk's Examples directory, you'll see three scripts 
+    that demonstrate its capabilities:
+
+    * `Invoke-Build.ps1` shows how to build and package your module with 
+    Silk
+    * `Publish-Module.ps1` shows how to publish your module to 
+    Chocolatey, NuGet, and the PowerShell Gallery.
+    * `Publish-Website.ps1` shows how to publish your module's help to a 
+    website.
+
+
+    ## Versioning and Building
+
+    To get started, create a `build.ps1` file in the root of your 
+    repository. In your `build.ps1` file, import Silk. Use Silk's 
+    `Set-ModuleVersion` function to set your module's version and 
+    compile any code.
+
+        Set-ModuleVersion -ManifestPath "PATH TO MODULE'S *.psd1 FILE" `
+                          -Version "VERSION TO BUILD" `
+                          -ReleaseNotesPath 'PATH TO RELEASE NOTES FILE' 
+                          
+    `Set-ModuleVersion` will also set the version in a .nuspec file (for 
+    creating Chocolatey and NuGet packages) and an AssemblyInfo.cs file 
+    (for versioning your module's assembly. 
+
+    `Set-ModuleVersion` will build a Visual Studio solution if you pass 
+    its path via the `SolutionPath` parameter.
+
+    Silk expects your release notes files to be written in Markdown. It 
+    expects each level-1 header (marked with a single `#` at the 
+    beginning of a line) to be a version number, and everything after 
+    that header to the next level-1 header (or the end of the file) to 
+    be the release notes for that version. When `Set-ModuleVersion` sets 
+    the version in a release notes file, it only sets the first level-1 
+    header it finds.
+
+    See the `RELEASE_NOTES.md` included with the Silk module for an 
+    example.
+
+
+    # Packaging and Preparing to Release
+
+    Silk can do the following actions to prepare your module for a 
+    release:
+
+    * The `Set-ReleaseNotesReleaseDate` function set the release date in 
+    your release notes file.
+    * The `Set-ModuleManifestMetadata` function sets the release notes 
+    and tags fields in your module manifest (i.e. .psd1 file). 
+    * Thge `Set-ModuleNuspec` function sets metadata in a .nuspec file 
+    (for Chocolatey and NuGet packages). The .nuspec file's description, 
+    version, tags, and copyright fields are set from your module's 
+    manifest (i.e. .psd1) file. The .nuspec file's releaseNotes property 
+    is pulled from your release notes file.
+    * The `New-NugetPackage` function will create a NuGet package from a 
+    .nuspec file.
+    * The `New-ChocolateyPackage` function will create a Chocolatey 
+    package from a .nuspec file. 
+
+    ## Publishing/Releasing a Module
+
+    Silk has the following functions you can use to publish/release your 
+    module:
+
+    * `Publish-NuGetPackage` will publish your module's .nupkg file to 
+    nuget.org. (You create a .nupkg file from a .nuspec file with the 
+    `New-NuGetPackage` function.)
+    * `Pulish-ChocolateyPackage` will publish your module's .nupkg file 
+    to chocolatey.org. (You create a .nupkg file from a .nuspec file 
+    with the `New-ChocolateyPackage` function.
+    * `Publish-PowerShellGalleryModule` will publish your module to the 
+    PowerShell Gallery (https://powershellgallery.com).
+
+    ## Creating a Website from a Module's Help Topics
+
+    Silk has the following functions for generating a website from a 
+    module's help topics. Silk assumes your help is written in Markdown.
+
+    Silk will auto-link to commands inside your module. Surround your 
+    module's command names, script names, and about topics in backticks, 
+    and Silk will convert it to a link to that item's help topic. For 
+    example, `about_Silk` will get converted to `<a 
+    href="about_Silk.html">about_Silk</a>`.
+
+    * `Convert-ModuleHelpToHtml` converts the help for each command in a 
+    module to an .html page/file.
+    * `New-ModuleHelpIndex` creates an index.html page that includes 
+    links to a module's `about_` help topics, standalone scripts, and 
+    commands. The commands are organized into three tabs: one organized 
+    by tags, one organized alphabetically by command name, and one 
+    organized alphabetically by verb.
+    * `Convert-ABoutTopicToHtml` converts about topics to HTML pages.
 
