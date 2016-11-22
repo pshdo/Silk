@@ -22,8 +22,21 @@ param(
 Set-StrictMode -Version 'Latest'
 $ErrorActionPreference = 'Stop'
 
-$env:PSModulePath -split ';' |
-    Join-Path -ChildPath 'Silk' |
-    Where-Object { Test-Path -Path $_ -PathType Container } |
-    Rename-Item -NewName { 'Silk{0}' -f [IO.Path]::GetRandomFileName() } -PassThru |
-    Remove-Item -Recurse -Force
+$errorCount = $Global:Error.Count
+try
+{
+    $env:PSModulePath -split ';' |
+        Where-Object { $_ } | 
+        Join-Path -ChildPath 'Silk' |
+        Where-Object { Test-Path -Path $_ -PathType Container } |
+        Rename-Item -NewName { 'Silk{0}' -f [IO.Path]::GetRandomFileName() } -PassThru |
+        Remove-Item -Recurse -Force
+}
+finally
+{
+    for( $idx = $errorCount; $idx -lt $Global:Error.Count; ++$idx )
+    {
+        $Global:Error[$idx]
+        $Global:Error[$idx] | Format-List -Property '*' -Force | Out-String | Write-Verbose
+    }
+}
