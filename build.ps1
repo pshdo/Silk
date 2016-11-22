@@ -107,4 +107,7 @@ New-Item -Path $examplesDir -ItemType 'Directory'
 Get-ChildItem -Path (Join-Path -Path $PSScriptRoot -ChildPath 'build.ps1') |
     Copy-Item -Destination (Join-Path -Path $examplesDir -ChildPath 'Invoke-Build.ps1')
 
+Get-ChildItem -Path (Join-Path -Path $PSScriptRoot -ChildPath 'New-Website.ps1') |
+    Copy-Item -Destination $examplesDir
+
 Get-ChildItem -Path 'RELEASE_NOTES.md','LICENSE','NOTICE' | Copy-Item -Destination $destination
