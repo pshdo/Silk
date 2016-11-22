@@ -2,8 +2,9 @@ NAME
     Silk
     
 SYNOPSIS
-    Silk is a PowerShell module for automaticaly versioning, building, 
-    authoring and publishing PowerShell modules.
+    Silk is a PowerShell module for authoring, building, and publishing
+    PowerShell modules and creating a website from a module's help 
+    topics.
 
 DESCRIPTION
 
