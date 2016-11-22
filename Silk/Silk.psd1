@@ -102,7 +102,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = @('git','vcs','rcs','automation','github','gitlab','libgit2')
+        Tags = @('powershell','module','help','tools')
 
         # A URL to the license for this module.
         LicenseUri = 'http://www.apache.org/licenses/LICENSE-2.0'
@@ -115,8 +115,7 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @'
-* Added `Set-GitConfiguration` for setting Git configuration variables. Implements the `git config` command.
- * Added SSH support. You must have an `ssh.exe` program in your path.
+* Improved `about_Silk` help topic.
 '@
 
     } # End of PSData hashtable
