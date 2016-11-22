@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!--
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+   
+       http://www.apache.org/licenses/LICENSE-2.0
+   
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<package>
+  <metadata>
+    <id>Silk</id>
+    <version>0.2.0</version>
+    <authors>Aaron Jensen</authors>
+    <owners>Aaron Jensen</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>http://get-silk.org</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>Silk is a PowerShell module for authoring, building, and publishing PowerShell modules and creating a website from a module's help topics.</summary>
+    <description>PowerShell module for publishing another module's help system as a website.</description>
+    <language>en-us</language>
+    <releaseNotes>
+ * Improved `about_Silk` help topic.</releaseNotes>
+    <copyright>(c) 2013 Aaron Jensen. All rights reserved.</copyright>
+    <tags>powershell module help tools</tags>
+  </metadata>
+  <files>
+    <file src=".\Silk\**\*" target="Silk" exclude="**\*.pdb;**\*.Tests.ps1" />
+    <file src=".\Tools\chocolateyInstall.ps1" target="Tools" />
+    <file src=".\Tools\chocolateyUninstall.ps1" target="Tools" />
+    <file src=".\LICENSE*" target="" />
+    <file src=".\LICENSE*" target="Silk" />
+    <file src=".\NOTICE*" target="" />
+    <file src=".\NOTICE*" target="Silk" />
+    <file src=".\RELEASE_NOTES.md" target="" />
+    <file src=".\RELEASE_NOTES.md" target="Silk" />
+  </files>
+</package>

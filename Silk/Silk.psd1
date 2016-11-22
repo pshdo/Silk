@@ -22,7 +22,7 @@
 @{
 
 # Script module or binary module file associated with this manifest
-ModuleToProcess = 'Silk.psm1'
+RootModule = 'Silk.psm1'
 
 # Version number of this module.
 ModuleVersion = '0.2.0'
@@ -97,7 +97,31 @@ ModuleList = @()
 FileList = @()
 
 # Private data to pass to the module specified in ModuleToProcess
-PrivateData = ''
+PrivateData = @{
+
+    PSData = @{
+
+        # Tags applied to this module. These help with module discovery in online galleries.
+        Tags = @('git','vcs','rcs','automation','github','gitlab','libgit2')
+
+        # A URL to the license for this module.
+        LicenseUri = 'http://www.apache.org/licenses/LICENSE-2.0'
+
+        # A URL to the main website for this project.
+        ProjectUri = 'http://get-silk.org'
+
+        # A URL to an icon representing this module.
+        # IconUri = ''
+
+        # ReleaseNotes of this module
+        ReleaseNotes = @'
+* Added `Set-GitConfiguration` for setting Git configuration variables. Implements the `git config` command.
+ * Added SSH support. You must have an `ssh.exe` program in your path.
+'@
+
+    } # End of PSData hashtable
+
+} # End of PrivateData hashtable
 
 }
 
